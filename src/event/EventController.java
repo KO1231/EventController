@@ -61,7 +61,7 @@ public class EventController {
 
     public void registerListener(EventListener v) {
         for(Method m: v.getClass().getMethods()){
-            if(m.getAnnotation(EventMethod.class) == null)
+            if(!m.isAnnotationPresent(EventMethod.class))
                 continue;
             if(m.getParameterTypes().length != 1)
                 continue;
