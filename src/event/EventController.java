@@ -4,6 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * EventController is a class that manages events and listeners.
+ */
 public final class EventController {
 
     private static class Invoker{
@@ -39,6 +42,11 @@ public final class EventController {
         data = new HashMap<>();
     }
 
+    /**
+     * Call an event.
+     * @param event Event to be invoked.
+     * @param <T> Type of the Event.
+     */
     public <T extends Event> void callEvent(T event){
         Set<Invoker> invoke_invokers = new HashSet<>();
 
@@ -58,9 +66,12 @@ public final class EventController {
         }
     }
 
-
-    public void registerListener(EventListener v) {
-        for(Method m: v.getClass().getMethods()){
+    /**
+     * Register an EventListener.
+     * @param listener EventListener to be registered.
+     */
+    public void registerListener(EventListener listener) {
+        for(Method m: listener.getClass().getMethods()){
             if(!m.isAnnotationPresent(EventMethod.class))
                 continue;
             if(m.getParameterTypes().length != 1)
@@ -68,7 +79,7 @@ public final class EventController {
             Class<?> c = m.getParameterTypes()[0];
             if(Event.class.isAssignableFrom(c)){
                 Class<? extends Event> ec = (Class<? extends Event>) c;
-                Invoker inv = new Invoker(m, v);
+                Invoker inv = new Invoker(m, listener);
                 if(data.containsKey(c)){
                     data.get(c).add(inv);
                 }else{
