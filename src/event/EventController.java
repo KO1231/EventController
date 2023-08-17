@@ -4,9 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class EventController {
+public final class EventController {
 
-    static class Invoker{
+    private static class Invoker{
         Method method;
         EventListener listener;
 
@@ -33,7 +33,7 @@ public class EventController {
         }
     }
 
-    Map<Class<? extends Event>, Set<Invoker>> data;
+    private Map<Class<? extends Event>, Set<Invoker>> data;
 
     public EventController() {
         data = new HashMap<>();
