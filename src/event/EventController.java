@@ -80,8 +80,8 @@ public final class EventController {
             if(Event.class.isAssignableFrom(c)){
                 Class<? extends Event> ec = (Class<? extends Event>) c;
                 Invoker inv = new Invoker(m, listener);
-                if(data.containsKey(c)){
-                    data.get(c).add(inv);
+                if(data.containsKey(ec)){
+                    data.get(ec).add(inv);
                 }else{
                     data.put(ec, new HashSet<>(List.of(inv)));
                 }
