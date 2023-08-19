@@ -85,4 +85,14 @@ public final class EventController {
         }
     }
 
+    public void unregisterListener(EventListener listener){
+        var i = data.entrySet().iterator();
+        while(i.hasNext()){
+            var e = i.next();
+            e.getValue().removeIf(inv -> inv.listener.equals(listener));
+            if(e.getValue().isEmpty())
+                i.remove();
+        }
+    }
+
 }
