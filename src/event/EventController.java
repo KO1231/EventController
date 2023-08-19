@@ -10,12 +10,12 @@ import java.util.*;
 public final class EventController {
 
     private static class Invoker{
-        Method method;
-        EventListener listener;
+        private final EventListener listener;
+        private final Method method;
 
-        public Invoker(Method method, EventListener listener) {
-            this.method = method;
+        public Invoker(EventListener listener, Method method) {
             this.listener = listener;
+            this.method = method;
         }
 
         public <T extends Event> void invoke(T event) throws InvocationTargetException, IllegalAccessException {
@@ -24,19 +24,19 @@ public final class EventController {
 
         @Override
         public int hashCode() {
-            return method.hashCode() + listener.hashCode();
+            return Objects.hash(listener, method);
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if(obj instanceof Invoker inv){
-                return inv.method.equals(method) && inv.listener.equals(listener);
-            }
-            return false;
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Invoker invoker = (Invoker) o;
+            return Objects.equals(listener, invoker.listener) && Objects.equals(method, invoker.method);
         }
     }
 
-    private Map<Class<? extends Event>, Set<Invoker>> data;
+    private final Map<Class<? extends Event>, Set<Invoker>> data;
 
     public EventController() {
         data = new HashMap<>();
@@ -48,19 +48,19 @@ public final class EventController {
      * @param <T> Type of the Event.
      */
     public <T extends Event> void callEvent(T event){
-        Set<Invoker> invoke_invokers = new HashSet<>();
+        Set<Invoker> invoked = new HashSet<>();
 
         for(var e: data.entrySet()){
             if(e.getKey().isAssignableFrom(event.getClass())){
                 for(Invoker inv: e.getValue()){
-                    if (invoke_invokers.contains(inv))
+                    if (invoked.contains(inv))
                         continue;
                     try {
                         inv.invoke(event);
                     } catch (InvocationTargetException | IllegalAccessException ex) {
                         throw new RuntimeException(ex);
                     }
-                    invoke_invokers.add(inv);
+                    invoked.add(inv);
                 }
             }
         }
@@ -79,12 +79,8 @@ public final class EventController {
             Class<?> c = m.getParameterTypes()[0];
             if(Event.class.isAssignableFrom(c)){
                 Class<? extends Event> ec = (Class<? extends Event>) c;
-                Invoker inv = new Invoker(m, listener);
-                if(data.containsKey(ec)){
-                    data.get(ec).add(inv);
-                }else{
-                    data.put(ec, new HashSet<>(List.of(inv)));
-                }
+                Invoker invoker = new Invoker(listener, m);
+                data.computeIfAbsent(ec, k -> new HashSet<>()).add(invoker);
             }
         }
     }
