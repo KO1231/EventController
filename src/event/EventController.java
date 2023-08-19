@@ -85,6 +85,10 @@ public final class EventController {
         }
     }
 
+    /**
+     * Unregister an EventListener.
+     * @param listener EventListener to be unregistered.
+     */
     public void unregisterListener(EventListener listener){
         var i = data.entrySet().iterator();
         while(i.hasNext()){
